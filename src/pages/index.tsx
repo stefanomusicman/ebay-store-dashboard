@@ -19,6 +19,10 @@ import {
   HomeCleanInterfaces,
   HomeHugePackElements,
 } from '../sections/home';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { PATH_AUTH } from 'src/routes/paths';
+import LoadingScreen from 'src/components/loading-screen/LoadingScreen';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +32,7 @@ HomePage.getLayout = (page: React.ReactElement) => <MainLayout> {page} </MainLay
 
 export default function HomePage() {
   const theme = useTheme();
+  const router = useRouter();
 
   const { scrollYProgress } = useScroll();
 
@@ -53,13 +58,19 @@ export default function HomePage() {
     />
   );
 
+  useEffect(() => {
+    router.replace(PATH_AUTH.login);
+  }, []);
+
   return (
     <>
       <Head>
-        <title> The starting point for your next project | Minimal UI</title>
+        <title> Loading...</title>
       </Head>
 
-      {progress}
+      <LoadingScreen />
+
+      {/* {progress}
 
       <HomeHero />
 
@@ -87,7 +98,7 @@ export default function HomePage() {
         <HomeLookingFor />
 
         <HomeAdvertisement />
-      </Box>
+      </Box> */}
     </>
   );
 }
