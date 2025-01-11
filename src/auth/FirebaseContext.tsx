@@ -3,13 +3,8 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   signOut,
-  signInWithPopup,
   onAuthStateChanged,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  TwitterAuthProvider,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { getFirestore, collection, doc, getDoc, setDoc } from 'firebase/firestore';
 // config
@@ -69,12 +64,6 @@ const AUTH = getAuth(firebaseApp);
 
 const DB = getFirestore(firebaseApp);
 
-const GOOGLE_PROVIDER = new GoogleAuthProvider();
-
-const GITHUB_PROVIDER = new GithubAuthProvider();
-
-const TWITTER_PROVIDER = new TwitterAuthProvider();
-
 type AuthProviderProps = {
   children: React.ReactNode;
 };
@@ -127,34 +116,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await signInWithEmailAndPassword(AUTH, email, password);
   }, []);
 
-  const loginWithGoogle = useCallback(() => {
-    signInWithPopup(AUTH, GOOGLE_PROVIDER);
-  }, []);
-
-  const loginWithGithub = useCallback(() => {
-    signInWithPopup(AUTH, GITHUB_PROVIDER);
-  }, []);
-
-  const loginWithTwitter = useCallback(() => {
-    signInWithPopup(AUTH, TWITTER_PROVIDER);
-  }, []);
-
-  // REGISTER
-  const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
-      await createUserWithEmailAndPassword(AUTH, email, password).then(async (res) => {
-        const userRef = doc(collection(DB, 'users'), res.user?.uid);
-
-        await setDoc(userRef, {
-          uid: res.user?.uid,
-          email,
-          displayName: `${firstName} ${lastName}`,
-        });
-      });
-    },
-    []
-  );
-
   // LOGOUT
   const logout = useCallback(() => {
     signOut(AUTH);
@@ -167,10 +128,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       user: state.user,
       method: 'firebase',
       login,
-      loginWithGoogle,
-      loginWithGithub,
-      loginWithTwitter,
-      register,
       logout,
     }),
     [
@@ -178,10 +135,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       state.isInitialized,
       state.user,
       login,
-      loginWithGithub,
-      loginWithGoogle,
-      loginWithTwitter,
-      register,
       logout,
     ]
   );
