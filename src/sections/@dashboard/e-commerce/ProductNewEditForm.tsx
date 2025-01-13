@@ -24,48 +24,39 @@ import FormProvider, {
   RHFRadioGroup,
   RHFAutocomplete,
 } from '../../../components/hook-form';
+import { Item } from 'types/item';
+import { Category } from 'types/category';
+import { Status } from 'types/status';
+import { Platform } from 'types/platforms';
 
 // ----------------------------------------------------------------------
 
-const GENDER_OPTION = [
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
+const STATUS_OPTION = [
+  { label: 'Sold', value: Status.SOLD },
+  { label: 'Listed', value: Status.LISTED },
+  { label: 'Not Listed', value: Status.NOT_LISTED },
 ];
 
 const CATEGORY_OPTION = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+  Category.BOARD_GAME,
+  Category.BOOK
 ];
 
 const TAGS_OPTION = [
-  'Toy Story 3',
-  'Logan',
-  'Full Metal Jacket',
-  'Dangal',
-  'The Sting',
-  '2001: A Space Odyssey',
-  "Singin' in the Rain",
-  'Toy Story',
-  'Bicycle Thieves',
-  'The Kid',
-  'Inglourious Basterds',
-  'Snatch',
-  '3 Idiots',
+  Platform.EBAY,
+  Platform.FB_MARKETPLACE,
+  Platform.KIJIJI
 ];
 
 // ----------------------------------------------------------------------
 
-interface FormValuesProps extends Omit<IProduct, 'images'> {
-  taxes: boolean;
-  inStock: boolean;
-  images: (CustomFile | string)[];
+interface FormValuesProps extends Omit<Item, 'picture'> {
+  images: (CustomFile | string)[]; // Assuming `picture` is replaced with `images` for file handling
 }
 
 type Props = {
   isEdit?: boolean;
-  currentProduct?: IProduct;
+  currentProduct?: Item;
 };
 
 export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
@@ -76,29 +67,31 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
   const NewProductSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     images: Yup.array().min(1, 'Images is required'),
+    status: Yup.string().required('Status is required'),
     tags: Yup.array().min(2, 'Must have at least 2 tags'),
-    price: Yup.number().moreThan(0, 'Price should not be $0.00'),
-    description: Yup.string().required('Description is required'),
+    cost: Yup.number().moreThan(0, 'Price should not be $0.00'),
+    // description: Yup.string().required('Description is required'),
   });
 
   const defaultValues = useMemo(
     () => ({
+      itemId: currentProduct?.itemId || '',
       name: currentProduct?.name || '',
+      cost: currentProduct?.cost || 0,
+      images: currentProduct?.picture ? [currentProduct.picture] : [], // Map `picture` to `images`
+      salePrice: currentProduct?.salePrice || 0,
+      category: currentProduct?.category || Category.BOARD_GAME,
+      condition: currentProduct?.condition || 1,
       description: currentProduct?.description || '',
-      images: currentProduct?.images || [],
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [TAGS_OPTION[0]],
-      inStock: true,
-      taxes: true,
-      gender: currentProduct?.gender || GENDER_OPTION[2].value,
-      category: currentProduct?.category || CATEGORY_OPTION[0].classify[1],
+      status: currentProduct?.status || STATUS_OPTION[0].value,
+      isComplete: currentProduct?.isComplete || false,
+      listedPlatforms: currentProduct?.listedPlatforms || [],
+      platformOfSale: currentProduct?.platformOfSale || undefined,
+      // If needed, add other fields from `Item` here
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentProduct]
   );
+
 
   const methods = useForm<FormValuesProps>({
     resolver: yupResolver(NewProductSchema),
@@ -200,53 +193,67 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <Card sx={{ p: 3 }}>
-              <RHFSwitch name="inStock" label="In stock" />
+              <RHFSwitch name="isComplete" label="Is Complete" />
 
               <Stack spacing={3} mt={2}>
-                <RHFTextField name="code" label="Product Code" />
+                {/* <RHFTextField name="code" label="Product Code" /> */}
 
-                <RHFTextField name="sku" label="Product SKU" />
+                {/* <RHFTextField name="sku" label="Product SKU" /> */}
 
                 <Stack spacing={1}>
                   <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                    Gender
+                    Status
                   </Typography>
 
-                  <RHFRadioGroup row spacing={4} name="gender" options={GENDER_OPTION} />
+                  <RHFRadioGroup row spacing={4} name="gender" options={STATUS_OPTION} />
                 </Stack>
+
+                <RHFSelect native name="condition" label="Condition">
+                  <option value="" />
+                  {Array.from({ length: 10 }, (_, index) => index + 1).map((number) => (
+                    <option key={number} value={number}>
+                      {number}
+                    </option>
+                  ))}
+                </RHFSelect>
 
                 <RHFSelect native name="category" label="Category">
                   <option value="" />
-                  {CATEGORY_OPTION.map((category) => (
-                    <optgroup key={category.group} label={category.group}>
-                      {category.classify.map((classify) => (
-                        <option key={classify} value={classify}>
-                          {classify}
-                        </option>
-                      ))}
-                    </optgroup>
+                  {CATEGORY_OPTION.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </RHFSelect>
 
                 <RHFAutocomplete
-                  name="tags"
-                  label="Tags"
+                  name="listedPlatforms"
+                  label="Listed Platforms"
                   multiple
                   freeSolo
                   options={TAGS_OPTION.map((option) => option)}
                   ChipProps={{ size: 'small' }}
                 />
+
+                <RHFSelect native name="platformOfSale" label="Platform of Sale">
+                  <option value="" />
+                  {TAGS_OPTION.map((platform, index) => (
+                    <option key={index} value={platform}>
+                      {platform}
+                    </option>
+                  ))}
+                </RHFSelect>
               </Stack>
             </Card>
 
             <Card sx={{ p: 3 }}>
               <Stack spacing={3} mb={2}>
                 <RHFTextField
-                  name="price"
-                  label="Regular Price"
+                  name="cost"
+                  label="Cost Price"
                   placeholder="0.00"
                   onChange={(event) =>
-                    setValue('price', Number(event.target.value), { shouldValidate: true })
+                    setValue('cost', Number(event.target.value), { shouldValidate: true })
                   }
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
@@ -262,10 +269,10 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                 />
 
                 <RHFTextField
-                  name="priceSale"
+                  name="salePrice"
                   label="Sale Price"
                   placeholder="0.00"
-                  onChange={(event) => setValue('priceSale', Number(event.target.value))}
+                  onChange={(event) => setValue('salePrice', Number(event.target.value))}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
                     startAdornment: (
@@ -280,7 +287,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                 />
               </Stack>
 
-              <RHFSwitch name="taxes" label="Price includes taxes" />
+              {/* <RHFSwitch name="taxes" label="Price includes taxes" /> */}
             </Card>
 
             <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
