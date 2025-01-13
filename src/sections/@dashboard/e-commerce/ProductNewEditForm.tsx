@@ -87,8 +87,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
       status: currentProduct?.status || STATUS_OPTION[2].value,
       isComplete: currentProduct?.isComplete || true,
       listedPlatforms: currentProduct?.listedPlatforms || [],
-      platformOfSale: currentProduct?.platformOfSale || undefined,
-      // If needed, add other fields from `Item` here
+      platformOfSale: currentProduct?.platformOfSale ?? null,
     }),
     [currentProduct]
   );
