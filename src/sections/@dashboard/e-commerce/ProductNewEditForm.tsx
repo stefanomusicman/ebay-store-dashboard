@@ -28,6 +28,7 @@ import { Item } from 'types/item';
 import { Category } from 'types/category';
 import { Status } from 'types/status';
 import { Platform } from 'types/platforms';
+import { itemService } from 'src/services/firestore-services/ItemService';
 
 // ----------------------------------------------------------------------
 
@@ -83,8 +84,8 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
       category: currentProduct?.category || Category.BOARD_GAME,
       condition: currentProduct?.condition || 1,
       description: currentProduct?.description || '',
-      status: currentProduct?.status || STATUS_OPTION[0].value,
-      isComplete: currentProduct?.isComplete || false,
+      status: currentProduct?.status || STATUS_OPTION[2].value,
+      isComplete: currentProduct?.isComplete || true,
       listedPlatforms: currentProduct?.listedPlatforms || [],
       platformOfSale: currentProduct?.platformOfSale || undefined,
       // If needed, add other fields from `Item` here
@@ -121,8 +122,22 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
   const onSubmit = async (data: FormValuesProps) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      const newItem: Omit<Item, 'id' | 'createdAt'> = {
+        name: data.name,
+        cost: data.cost,
+        picture: "",
+        salePrice: data.salePrice,
+        category: data.category,
+        condition: data.condition,
+        description: data.description,
+        status: data.status,
+        isComplete: data.isComplete,
+        listedPlatforms: data.listedPlatforms,
+        platformOfSale: data.platformOfSale
+      };
+      await itemService.createItem(newItem, data.images[0] as File);
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      reset();
       push(PATH_DASHBOARD.eCommerce.list);
       console.log('DATA', data);
     } catch (error) {
@@ -175,16 +190,17 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                   Images
                 </Typography>
 
-                <RHFUpload
-                  multiple
-                  thumbnail
-                  name="images"
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  onRemove={handleRemoveFile}
-                  onRemoveAll={handleRemoveAllFiles}
-                  onUpload={() => console.log('ON UPLOAD')}
-                />
+                {!isEdit ?
+                  <RHFUpload
+                    multiple
+                    thumbnail
+                    name="images"
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    onRemove={handleRemoveFile}
+                    onRemoveAll={handleRemoveAllFiles}
+                    onUpload={() => console.log('ON UPLOAD')}
+                  /> : <img src={currentProduct?.picture} width='100%' height='auto' />}
               </Stack>
             </Stack>
           </Card>
@@ -205,7 +221,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                     Status
                   </Typography>
 
-                  <RHFRadioGroup row spacing={4} name="gender" options={STATUS_OPTION} />
+                  <RHFRadioGroup row spacing={4} name="status" options={STATUS_OPTION} />
                 </Stack>
 
                 <RHFSelect native name="condition" label="Condition">
