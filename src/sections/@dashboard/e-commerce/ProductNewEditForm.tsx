@@ -134,7 +134,23 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
         listedPlatforms: data.listedPlatforms,
         platformOfSale: data.platformOfSale
       };
-      await itemService.createItem(newItem, data.images[0] as File);
+
+      const updatedItem: Item = {
+        name: data.name,
+        cost: data.cost,
+        picture: currentProduct?.picture!,
+        salePrice: data.salePrice,
+        category: data.category,
+        condition: data.condition,
+        description: data.description,
+        status: data.status,
+        createdAt: currentProduct?.createdAt!,
+        isComplete: data.isComplete,
+        listedPlatforms: data.listedPlatforms,
+        platformOfSale: data.platformOfSale
+      };
+      !isEdit ? await itemService.createItem(newItem, data.images[0] as File) :
+        await itemService.updateEntireItem(currentProduct?.itemId!, updatedItem)
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       reset();
       push(PATH_DASHBOARD.eCommerce.list);

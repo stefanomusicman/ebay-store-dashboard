@@ -25,7 +25,7 @@ class ItemService extends BaseFirebaseService<Item> {
 
             const photoUrl = await getDownloadURL(photoRef);
 
-            await this.update(itemId, { picture: photoUrl });
+            await this.update(itemId, { itemId, picture: photoUrl });
 
             return itemId;
         } catch (error) {
