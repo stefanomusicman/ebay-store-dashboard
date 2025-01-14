@@ -132,11 +132,11 @@ export default function Upload({
               </Button>
             )}
 
-            {onUpload && (
+            {/* {onUpload && (
               <Button size="small" variant="contained" onClick={onUpload}>
                 Upload files
               </Button>
-            )}
+            )} */}
           </Stack>
         </>
       )}

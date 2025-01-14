@@ -1,7 +1,7 @@
 import { Item } from "types/item";
 import { BaseFirebaseService } from "../BaseService";
-import { storage } from "../config";
-import { getCountFromServer, query, serverTimestamp, Timestamp, where } from "firebase/firestore";
+import { db, storage } from "../config";
+import { collection, getCountFromServer, getDocs, query, serverTimestamp, Timestamp, where } from "firebase/firestore";
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { ItemNotFoundError } from "../error-handling/ItemNotFoundError";
 import { Status } from "types/status";
@@ -34,6 +34,22 @@ class ItemService extends BaseFirebaseService<Item> {
             // Cleanup: Delete the Firestore document if photo upload fails
             await this.delete(itemId);
             throw new Error(`Failed to upload photo and update item with ID ${itemId}`);
+        }
+    }
+
+    async getAllItems(): Promise<Item[]> {
+        try {
+            const querySnapshot = await getDocs(collection(db, this.collectionName));
+
+            const items: Item[] = querySnapshot.docs.map((doc) => ({
+                id: doc.id,             // Assign the document ID to the Item's `id` field
+                ...doc.data() as Item,  // Spread and cast the document data to the Item type
+            }));
+
+            return items;
+        } catch (error) {
+            console.error('Error fetching all items:', error);
+            throw new Error('Failed to fetch items');
         }
     }
 

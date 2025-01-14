@@ -44,21 +44,26 @@ import CustomBreadcrumbs from '../../../components/custom-breadcrumbs';
 import ConfirmDialog from '../../../components/confirm-dialog';
 // sections
 import { ProductTableRow, ProductTableToolbar } from '../../../sections/@dashboard/e-commerce/list';
+import { Item } from 'types/item';
+import { itemService } from 'src/services/firestore-services/ItemService';
+import { label } from 'yet-another-react-lightbox/core';
+import { Status } from 'types/status';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Product', align: 'left' },
-  { id: 'createdAt', label: 'Create at', align: 'left' },
-  { id: 'inventoryType', label: 'Status', align: 'center', width: 180 },
-  { id: 'price', label: 'Price', align: 'right' },
+  { id: 'picture', label: '', align: 'left' },
+  { id: 'name', label: 'Name', align: 'left' },
+  { id: 'category', label: 'Category', align: 'left' },
+  { id: 'status', label: 'Status', align: 'left' },
+  // { id: 'price', label: 'Price', align: 'left' },
   { id: '' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'in_stock', label: 'In stock' },
-  { value: 'low_stock', label: 'Low stock' },
-  { value: 'out_of_stock', label: 'Out of stock' },
+  { value: Status.SOLD, label: 'Sold' },
+  { value: Status.LISTED, label: 'Listed' },
+  { value: Status.NOT_LISTED, label: 'Not Listed' },
 ];
 
 // ----------------------------------------------------------------------
@@ -99,7 +104,7 @@ export default function EcommerceProductListPage() {
 
   const { products, isLoading } = useSelector((state) => state.product);
 
-  const [tableData, setTableData] = useState<IProduct[]>([]);
+  const [tableData, setTableData] = useState<Item[]>([]);
 
   const [filterName, setFilterName] = useState('');
 
@@ -107,15 +112,24 @@ export default function EcommerceProductListPage() {
 
   const [openConfirm, setOpenConfirm] = useState(false);
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getProducts());
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   if (products.length) {
+  //     setTableData(products);
+  //   }
+  // }, [products]);
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
+    const fetchItems = async () => {
+      const items: Item[] = await itemService.getAllItems();
+      setTableData(items as Item[]);
     }
-  }, [products]);
+
+    fetchItems();
+  }, []);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -154,7 +168,7 @@ export default function EcommerceProductListPage() {
   };
 
   const handleDeleteRow = (id: string) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+    const deleteRow = tableData.filter((row) => row.itemId !== id);
     setSelected([]);
     setTableData(deleteRow);
 
@@ -166,7 +180,7 @@ export default function EcommerceProductListPage() {
   };
 
   const handleDeleteRows = (selectedRows: string[]) => {
-    const deleteRows = tableData.filter((row) => !selectedRows.includes(row.id));
+    const deleteRows = tableData.filter((row) => !selectedRows.includes(row.itemId!));
     setSelected([]);
     setTableData(deleteRows);
 
@@ -183,7 +197,7 @@ export default function EcommerceProductListPage() {
   };
 
   const handleEditRow = (id: string) => {
-    push(PATH_DASHBOARD.eCommerce.edit(paramCase(id)));
+    push(PATH_DASHBOARD.eCommerce.edit(id));
   };
 
   const handleViewRow = (id: string) => {
@@ -198,7 +212,7 @@ export default function EcommerceProductListPage() {
   return (
     <>
       <Head>
-        <title> Ecommerce: Product List | Minimal UI</title>
+        <title> Ecommerce: Product List</title>
       </Head>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -243,7 +257,7 @@ export default function EcommerceProductListPage() {
               onSelectAllRows={(checked) =>
                 onSelectAllRows(
                   checked,
-                  tableData.map((row) => row.id)
+                  tableData.map((row) => row.itemId as string)
                 )
               }
               action={
@@ -267,7 +281,7 @@ export default function EcommerceProductListPage() {
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData.map((row) => row.itemId as string)
                     )
                   }
                 />
@@ -283,7 +297,7 @@ export default function EcommerceProductListPage() {
                           selected={selected.includes(row.id)}
                           onSelectRow={() => onSelectRow(row.id)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.name)}
+                          onEditRow={() => handleEditRow(row.id)}
                           onViewRow={() => handleViewRow(row.name)}
                         />
                       ) : (
@@ -349,7 +363,7 @@ function applyFilter({
   filterName,
   filterStatus,
 }: {
-  inputData: IProduct[];
+  inputData: Item[];
   comparator: (a: any, b: any) => number;
   filterName: string;
   filterStatus: string[];
@@ -370,9 +384,9 @@ function applyFilter({
     );
   }
 
-  if (filterStatus.length) {
-    inputData = inputData.filter((product) => filterStatus.includes(product.inventoryType));
-  }
+  // if (filterStatus.length) {
+  //   inputData = inputData.filter((product) => filterStatus.includes(product.inventoryType));
+  // }
 
   return inputData;
 }

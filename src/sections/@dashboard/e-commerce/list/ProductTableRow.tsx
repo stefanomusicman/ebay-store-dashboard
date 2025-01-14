@@ -22,11 +22,13 @@ import Image from '../../../../components/image';
 import Iconify from '../../../../components/iconify';
 import MenuPopover from '../../../../components/menu-popover';
 import ConfirmDialog from '../../../../components/confirm-dialog';
+import { Item } from 'types/item';
+import { Status } from 'types/status';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IProduct;
+  row: Item;
   selected: boolean;
   onEditRow: VoidFunction;
   onViewRow: VoidFunction;
@@ -42,7 +44,7 @@ export default function ProductTableRow({
   onEditRow,
   onViewRow,
 }: Props) {
-  const { name, cover, createdAt, inventoryType, price } = row;
+  const { name, category, status, picture } = row;
 
   const [openConfirm, setOpenConfirm] = useState(false);
 
@@ -72,14 +74,24 @@ export default function ProductTableRow({
         </TableCell>
 
         <TableCell>
+          <Image
+            disabledEffect
+            visibleByDefault
+            alt={name}
+            src={picture}
+            sx={{ borderRadius: 1.5, width: 48, height: 48 }}
+          />
+        </TableCell>
+
+        <TableCell>
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Image
+            {/* <Image
               disabledEffect
               visibleByDefault
               alt={name}
-              src={cover}
+              src={picture}
               sx={{ borderRadius: 1.5, width: 48, height: 48 }}
-            />
+            /> */}
 
             <Link
               noWrap
@@ -93,23 +105,25 @@ export default function ProductTableRow({
           </Stack>
         </TableCell>
 
-        <TableCell>{fDate(createdAt)}</TableCell>
+        <TableCell>{category}</TableCell>
 
-        <TableCell align="center">
+        <TableCell align="left">
           <Label
             variant="soft"
             color={
-              (inventoryType === 'out_of_stock' && 'error') ||
-              (inventoryType === 'low_stock' && 'warning') ||
+              (status === Status.SOLD && 'success') ||
+              (status === Status.LISTED && 'info') ||
+              (status === Status.NOT_LISTED) && 'warning' ||
               'success'
             }
             sx={{ textTransform: 'capitalize' }}
           >
-            {inventoryType ? sentenceCase(inventoryType) : ''}
+            {/* {inventoryType ? sentenceCase(inventoryType) : ''} */}
+            {status}
           </Label>
         </TableCell>
 
-        <TableCell align="right">{fCurrency(price)}</TableCell>
+        {/* <TableCell align="right">{fCurrency(price)}</TableCell> */}
 
         <TableCell align="right">
           <IconButton color={openPopover ? 'primary' : 'default'} onClick={handleOpenPopover}>

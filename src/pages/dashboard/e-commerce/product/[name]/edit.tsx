@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { paramCase } from 'change-case';
 // next
 import Head from 'next/head';
@@ -17,6 +17,8 @@ import { useSettingsContext } from '../../../../../components/settings';
 import CustomBreadcrumbs from '../../../../../components/custom-breadcrumbs';
 // sections
 import ProductNewEditForm from '../../../../../sections/@dashboard/e-commerce/ProductNewEditForm';
+import { Item } from 'types/item';
+import { itemService } from 'src/services/firestore-services/ItemService';
 
 // ----------------------------------------------------------------------
 
@@ -30,23 +32,41 @@ export default function EcommerceProductEditPage() {
   const { themeStretch } = useSettingsContext();
 
   const dispatch = useDispatch();
+  const [currentProduct, setCurrentProduct] = useState<Item | null>(null);
 
   const {
     query: { name },
+    isReady
   } = useRouter();
 
-  const currentProduct = useSelector((state) =>
-    state.product.products.find((product) => paramCase(product.name) === name)
-  );
-
   useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+    console.log('id: ', name);
+    if (!isReady || !name) return; // Ensure the router is ready and `id` is available
+
+    const fetchProduct = async () => {
+      try {
+        const product = await itemService.getItemById(name as string);
+        setCurrentProduct(product); // Update state with the fetched product
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+      }
+    };
+
+    fetchProduct();
+  }, [name, isReady]);
+
+  // const currentProduct = useSelector((state) =>
+  //   state.product.products.find((product) => paramCase(product.name) === name)
+  // );
+
+  // useEffect(() => {
+  //   dispatch(getProducts());
+  // }, [dispatch]);
 
   return (
     <>
       <Head>
-        <title> Ecommerce: Edit product | Minimal UI</title>
+        <title> Ecommerce: Edit product</title>
       </Head>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -62,7 +82,7 @@ export default function EcommerceProductEditPage() {
           ]}
         />
 
-        <ProductNewEditForm isEdit currentProduct={currentProduct} />
+        <ProductNewEditForm isEdit currentProduct={currentProduct as Item} />
       </Container>
     </>
   );
