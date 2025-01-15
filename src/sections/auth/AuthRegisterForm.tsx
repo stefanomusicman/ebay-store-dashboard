@@ -23,8 +23,6 @@ type FormValuesProps = {
 };
 
 export default function AuthRegisterForm() {
-  const { register } = useAuthContext();
-
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
@@ -54,18 +52,18 @@ export default function AuthRegisterForm() {
   } = methods;
 
   const onSubmit = async (data: FormValuesProps) => {
-    try {
-      if (register) {
-        await register(data.email, data.password, data.firstName, data.lastName);
-      }
-    } catch (error) {
-      console.error(error);
-      reset();
-      setError('afterSubmit', {
-        ...error,
-        message: error.message || error,
-      });
-    }
+    // try {
+    //   if (register) {
+    //     await register(data.email, data.password, data.firstName, data.lastName);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   reset();
+    //   setError('afterSubmit', {
+    //     ...error,
+    //     message: error.message || error,
+    //   });
+    // }
   };
 
   return (
