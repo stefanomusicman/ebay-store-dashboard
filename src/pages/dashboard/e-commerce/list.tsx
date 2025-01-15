@@ -17,6 +17,10 @@ import {
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 // redux
+import { Item } from 'types/item';
+import { itemService } from 'src/services/firestore-services/ItemService';
+import { label } from 'yet-another-react-lightbox/core';
+import { Status } from 'types/status';
 import { useDispatch, useSelector } from '../../../redux/store';
 import { getProducts } from '../../../redux/slices/product';
 // routes
@@ -44,10 +48,6 @@ import CustomBreadcrumbs from '../../../components/custom-breadcrumbs';
 import ConfirmDialog from '../../../components/confirm-dialog';
 // sections
 import { ProductTableRow, ProductTableToolbar } from '../../../sections/@dashboard/e-commerce/list';
-import { Item } from 'types/item';
-import { itemService } from 'src/services/firestore-services/ItemService';
-import { label } from 'yet-another-react-lightbox/core';
-import { Status } from 'types/status';
 
 // ----------------------------------------------------------------------
 

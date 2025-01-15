@@ -9,6 +9,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/material';
 // routes
+import { Item } from 'types/item';
+import { Category } from 'types/category';
+import { Status } from 'types/status';
+import { Platform } from 'types/platforms';
+import { itemService } from 'src/services/firestore-services/ItemService';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // @types
 import { IProduct } from '../../../@types/product';
@@ -24,11 +29,6 @@ import FormProvider, {
   RHFRadioGroup,
   RHFAutocomplete,
 } from '../../../components/hook-form';
-import { Item } from 'types/item';
-import { Category } from 'types/category';
-import { Status } from 'types/status';
-import { Platform } from 'types/platforms';
-import { itemService } from 'src/services/firestore-services/ItemService';
 
 // ----------------------------------------------------------------------
 
@@ -149,8 +149,11 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
         listedPlatforms: data.listedPlatforms,
         platformOfSale: data.platformOfSale
       };
-      !isEdit ? await itemService.createItem(newItem, data.images[0] as File) :
-        await itemService.updateEntireItem(currentProduct?.itemId!, updatedItem)
+      if (!isEdit) {
+        await itemService.createItem(newItem, data.images[0] as File);
+      } else {
+        await itemService.updateEntireItem(currentProduct?.itemId!, updatedItem);
+      }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
       reset();
       push(PATH_DASHBOARD.eCommerce.list);
@@ -215,7 +218,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                     onRemove={handleRemoveFile}
                     onRemoveAll={handleRemoveAllFiles}
                     onUpload={() => console.log('ON UPLOAD')}
-                  /> : <img src={currentProduct?.picture} width='100%' height='auto' />}
+                  /> : <img alt='product' src={currentProduct?.picture} width='100%' height='auto' />}
               </Stack>
             </Stack>
           </Card>

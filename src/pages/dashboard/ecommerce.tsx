@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useTheme } from '@mui/material/styles';
 import { Container, Grid, Button, Stack } from '@mui/material';
 // auth
+import { BankingWidgetSummary } from 'src/sections/@dashboard/general/banking';
 import { useAuthContext } from '../../auth/useAuthContext';
 // layouts
 import DashboardLayout from '../../layouts/dashboard';
@@ -30,7 +31,6 @@ import {
 import { AppWelcome } from '../../sections/@dashboard/general/app';
 // assets
 import { MotivationIllustration } from '../../assets/illustrations';
-import { BankingWidgetSummary } from 'src/sections/@dashboard/general/banking';
 
 // ----------------------------------------------------------------------
 

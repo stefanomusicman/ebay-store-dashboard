@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 // @mui
 import { Container } from '@mui/material';
 // redux
+import { Item } from 'types/item';
+import { itemService } from 'src/services/firestore-services/ItemService';
 import { useDispatch, useSelector } from '../../../../../redux/store';
 import { getProducts } from '../../../../../redux/slices/product';
 // routes
@@ -17,8 +19,6 @@ import { useSettingsContext } from '../../../../../components/settings';
 import CustomBreadcrumbs from '../../../../../components/custom-breadcrumbs';
 // sections
 import ProductNewEditForm from '../../../../../sections/@dashboard/e-commerce/ProductNewEditForm';
-import { Item } from 'types/item';
-import { itemService } from 'src/services/firestore-services/ItemService';
 
 // ----------------------------------------------------------------------
 

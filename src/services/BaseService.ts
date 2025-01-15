@@ -1,6 +1,6 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "./config";
 import { attachId } from "src/helper-functions/attach-id";
+import { db } from "./config";
 
 export type WithId<T> = T & { id: string };
 export type WithoutId<T> = Omit<T, 'id'>;
