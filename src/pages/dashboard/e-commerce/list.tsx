@@ -167,32 +167,44 @@ export default function EcommerceProductListPage() {
     setFilterStatus(typeof value === 'string' ? value.split(',') : value);
   };
 
-  const handleDeleteRow = (id: string) => {
-    const deleteRow = tableData.filter((row) => row.itemId !== id);
-    setSelected([]);
-    setTableData(deleteRow);
+  const handleDeleteRow = async (id: string) => {
+    try {
+      await itemService.deleteItem(id);
+      const deleteRow = tableData.filter((row) => row.itemId !== id);
+      setSelected([]);
+      setTableData(deleteRow);
 
-    if (page > 0) {
-      if (dataInPage.length < 2) {
-        setPage(page - 1);
+      if (page > 0) {
+        if (dataInPage.length < 2) {
+          setPage(page - 1);
+        }
       }
+    } catch (error) {
+      console.error('ERROR DELETING PRODUCT: ', error.message);
     }
   };
 
-  const handleDeleteRows = (selectedRows: string[]) => {
-    const deleteRows = tableData.filter((row) => !selectedRows.includes(row.itemId!));
-    setSelected([]);
-    setTableData(deleteRows);
+  const handleDeleteRows = async (selectedRows: string[]) => {
+    try {
+      const deletePromises = selectedRows.map((itemId) => itemService.deleteItem(itemId));
+      await Promise.all(deletePromises);
 
-    if (page > 0) {
-      if (selectedRows.length === dataInPage.length) {
-        setPage(page - 1);
-      } else if (selectedRows.length === dataFiltered.length) {
-        setPage(0);
-      } else if (selectedRows.length > dataInPage.length) {
-        const newPage = Math.ceil((tableData.length - selectedRows.length) / rowsPerPage) - 1;
-        setPage(newPage);
+      const deleteRows = tableData.filter((row) => !selectedRows.includes(row.itemId!));
+      setSelected([]);
+      setTableData(deleteRows);
+
+      if (page > 0) {
+        if (selectedRows.length === dataInPage.length) {
+          setPage(page - 1);
+        } else if (selectedRows.length === dataFiltered.length) {
+          setPage(0);
+        } else if (selectedRows.length > dataInPage.length) {
+          const newPage = Math.ceil((tableData.length - selectedRows.length) / rowsPerPage) - 1;
+          setPage(newPage);
+        }
       }
+    } catch (error) {
+      console.log('ERROR DELETING MULTIPLE ITEMS: ', error.message);
     }
   };
 

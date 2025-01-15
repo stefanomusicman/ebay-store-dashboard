@@ -85,19 +85,11 @@ export default function ProductTableRow({
 
         <TableCell>
           <Stack direction="row" alignItems="center" spacing={2}>
-            {/* <Image
-              disabledEffect
-              visibleByDefault
-              alt={name}
-              src={picture}
-              sx={{ borderRadius: 1.5, width: 48, height: 48 }}
-            /> */}
-
             <Link
               noWrap
               color="inherit"
               variant="subtitle2"
-              onClick={onViewRow}
+              onClick={onEditRow}
               sx={{ cursor: 'pointer' }}
             >
               {name}
