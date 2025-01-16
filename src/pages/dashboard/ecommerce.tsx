@@ -41,8 +41,6 @@ GeneralEcommercePage.getLayout = (page: React.ReactElement) => (
 // ----------------------------------------------------------------------
 
 export default function GeneralEcommercePage() {
-  const { user } = useAuthContext();
-
   const theme = useTheme();
 
   const { themeStretch } = useSettingsContext();

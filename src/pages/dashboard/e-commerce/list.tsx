@@ -396,9 +396,9 @@ function applyFilter({
     );
   }
 
-  // if (filterStatus.length) {
-  //   inputData = inputData.filter((product) => filterStatus.includes(product.inventoryType));
-  // }
+  if (filterStatus.length) {
+    inputData = inputData.filter((product) => filterStatus.includes(product.status));
+  }
 
   return inputData;
 }
