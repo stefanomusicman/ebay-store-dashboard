@@ -8,14 +8,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/material';
+// @types
+import { Item } from 'types/item';
 // routes
 import { Category } from 'types/category';
 import { Status } from 'types/status';
 import { Platform } from 'types/platforms';
 import { itemService } from 'src/services/firestore-services/ItemService';
 import { PATH_DASHBOARD } from '../../../routes/paths';
-// @types
-import { Item } from 'types/item';
 // components
 import { CustomFile } from '../../../components/upload';
 import { useSnackbar } from '../../../components/snackbar';
