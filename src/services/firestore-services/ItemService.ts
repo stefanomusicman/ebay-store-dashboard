@@ -37,6 +37,15 @@ class ItemService extends BaseFirebaseService<Item> {
         }
     }
 
+    async createItemWithoutImg(item: Omit<Item, 'id' | 'createdAt'>): Promise<string> {
+        const newItem: Omit<Item, 'id'> = {
+            ...item,
+            createdAt: serverTimestamp() as Timestamp,
+        };
+        const itemId = await this.create(newItem);
+        return itemId;
+    }
+
     async getAllItems(): Promise<Item[]> {
         try {
             const querySnapshot = await getDocs(collection(db, this.collectionName));

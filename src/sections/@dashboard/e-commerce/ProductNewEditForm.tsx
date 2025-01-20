@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 // next
 import { useRouter } from 'next/router';
 // form
@@ -9,14 +9,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, Grid, Stack, Typography, InputAdornment } from '@mui/material';
 // routes
-import { Item } from 'types/item';
 import { Category } from 'types/category';
 import { Status } from 'types/status';
 import { Platform } from 'types/platforms';
 import { itemService } from 'src/services/firestore-services/ItemService';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // @types
-import { IProduct } from '../../../@types/product';
+import { Item } from 'types/item';
 // components
 import { CustomFile } from '../../../components/upload';
 import { useSnackbar } from '../../../components/snackbar';
@@ -65,9 +64,15 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const [imageUrl, setImageUrl] = useState<string>("");
+
+  const handleImageUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setImageUrl(event.target.value);
+  };
+
   const NewProductSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    images: Yup.array().min(1, 'Images is required'),
+    // images: Yup.array().min(1, 'Images is required'),
     status: Yup.string().required('Status is required'),
     tags: Yup.array().min(2, 'Must have at least 2 tags'),
     cost: Yup.number().moreThan(0, 'Price should not be $0.00'),
@@ -124,7 +129,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
       const newItem: Omit<Item, 'id' | 'createdAt'> = {
         name: data.name,
         cost: data.cost,
-        picture: "",
+        picture: imageUrl.length > 0 ? imageUrl : "",
         salePrice: data.salePrice,
         category: data.category,
         condition: data.condition,
@@ -149,7 +154,9 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
         listedPlatforms: data.listedPlatforms,
         platformOfSale: data.platformOfSale
       };
-      if (!isEdit) {
+      if (!isEdit && imageUrl.length > 0) {
+        await itemService.createItemWithoutImg(newItem);
+      } else if (!isEdit) {
         await itemService.createItem(newItem, data.images[0] as File);
       } else {
         await itemService.updateEntireItem(currentProduct?.itemId!, updatedItem);
@@ -203,7 +210,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                 <RHFEditor simple name="description" />
               </Stack>
 
-              <Stack spacing={1}>
+              <Stack spacing={3}>
                 <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
                   Images
                 </Typography>
@@ -219,6 +226,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                     onRemoveAll={handleRemoveAllFiles}
                     onUpload={() => console.log('ON UPLOAD')}
                   /> : <img alt='product' src={currentProduct?.picture} width='100%' height='auto' />}
+                {!isEdit && <RHFTextField onChange={handleImageUrlChange} value={imageUrl} name="imageUrl" label="Image Url" />}
               </Stack>
             </Stack>
           </Card>
