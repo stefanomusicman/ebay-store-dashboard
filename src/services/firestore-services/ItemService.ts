@@ -43,6 +43,7 @@ class ItemService extends BaseFirebaseService<Item> {
             createdAt: serverTimestamp() as Timestamp,
         };
         const itemId = await this.create(newItem);
+        await this.update(itemId, { itemId })
         return itemId;
     }
 

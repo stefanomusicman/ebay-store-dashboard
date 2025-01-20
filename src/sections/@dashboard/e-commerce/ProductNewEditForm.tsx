@@ -81,7 +81,6 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
 
   const defaultValues = useMemo(
     () => ({
-      itemId: currentProduct?.itemId || '',
       name: currentProduct?.name || '',
       cost: currentProduct?.cost || 0,
       images: currentProduct?.picture ? [currentProduct.picture] : [], // Map `picture` to `images`
